@@ -1,0 +1,78 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Project CPlatform {
+  database_type: 'PostgreSQL'
+  Note: 'Description of the project'
+}
+
+Table user {
+  id integer [primary key, not null, unique]
+  name varchar [not null]
+  email varchar [unique, not null]
+  password varchar [not null]
+}
+
+Table enrolled_course {
+  id integer [primary key, not null, unique]
+  course_id integer [not null, ref: > course.id]
+  user_id integer [not null, ref: > user.id]
+}
+
+Table course {
+  id integer [primary key, not null, unique]
+  name varchar [not null]
+}
+
+Table level {
+  id integer [primary key, not null, unique]
+  name varchar [not null]
+  course_id integer [not null, ref: > course.id]
+}
+
+Table lesson {
+  id integer [primary key, not null, unique]
+  name varchar [not null]
+  content_file path [not null]
+  level_id integer [not null, ref: > level.id]
+}
+
+Table visited_lesson {
+  id integer [primary key, not null, unique]
+  user_id integer [not null, ref: > user.id]
+  lesson_id integer [not null, ref: > lesson.id]
+}
+
+Table gallery {
+  id integer [primary key, not null, unique]
+  photo_path path [not null]
+  user_id integer [not null, ref: > user.id]
+}
+
+Table permission {
+  id integer [primary key, not null, unique]
+  entity Entity
+  action Action
+}
+
+Table user_permission {
+  id integer [primary key, not null, unique]
+  user_id integer [not null, ref: > user.id]
+  permission_id integer [not null, ref: > permission.id]
+}
+
+Enum Entity {
+  "USER"
+  "PERMISSION"
+  "COURSE"
+  "GALLERY"
+  "LESSON"
+  "LEVEL"
+}
+
+Enum Action {
+  "CREATE"
+  "READ"
+  "UPDATE"
+  "DELETE"
+}
