@@ -45,7 +45,7 @@ export class PermissionGuard extends AuthGuard('jwt-access-token-strategy') {
       return true;
     }
 
-    return requiredPermissions.every(
+    return requiredPermissions.some(
       async ({ action, entity }): Promise<boolean> => {
         const { tableName: entityName } = this.dataSource.getMetadata(entity);
 
