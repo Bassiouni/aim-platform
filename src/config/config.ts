@@ -7,7 +7,7 @@ const {
   DB_USER,
   DB_PASSWORD,
   DB_NAME,
-  APP_PORT,
+  PORT,
   BCRYPT_SECRET,
   JWT_ACCESS_SECRET,
   JWT_REFRESH_SECRET,
@@ -30,7 +30,7 @@ const database: TypeOrmModuleOptions = {
 export function config() {
   return {
     env: ENV,
-    port: Number(APP_PORT),
+    port: Number(PORT),
     bcrypt_password: BCRYPT_SECRET,
     access_token_secret: JWT_ACCESS_SECRET,
     refresh_token_secret: JWT_REFRESH_SECRET,
