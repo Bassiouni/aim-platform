@@ -4,12 +4,14 @@ import { UpdateLevelDto } from '../dto/update-level.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LevelEntity } from '../entities/level.entity';
 import { Repository } from 'typeorm';
+import { CourseService } from '../../course/services/course.service';
 
 @Injectable()
 export class LevelService {
   public constructor(
     @InjectRepository(LevelEntity)
     private readonly levelRepository: Repository<LevelEntity>,
+    private readonly courseService: CourseService,
   ) {}
 
   public async create(createLevelDto: CreateLevelDto) {
@@ -25,7 +27,18 @@ export class LevelService {
   }
 
   public async update(id: number, updateLevelDto: UpdateLevelDto) {
-    return await this.levelRepository.update(id, updateLevelDto);
+    if (
+      updateLevelDto.courseId !== undefined &&
+      updateLevelDto.courseId !== null
+    ) {
+      const course = await this.courseService.findOne(updateLevelDto.courseId);
+      await this.levelRepository.save({
+        id,
+        course,
+      });
+    }
+    delete updateLevelDto.courseId;
+    return await this.levelRepository.save({ id, ...updateLevelDto });
   }
 
   public async remove(id: number) {

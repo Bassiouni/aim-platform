@@ -11,6 +11,8 @@ export class PermissionEntity extends AbstractEntity {
   @Column({ enum: ActionTypeEnum, enumName: 'action_type' })
   public readonly action: ActionTypeEnum;
 
-  @OneToMany(() => UserPermissionEntity, (up) => up.permission)
+  @OneToMany(() => UserPermissionEntity, (up) => up.permission, {
+    cascade: true,
+  })
   public readonly userPermissions: UserPermissionEntity[];
 }

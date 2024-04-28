@@ -11,10 +11,19 @@ export class LessonEntity extends AbstractEntity {
   @Column({ unique: true })
   public readonly contentFile: string;
 
-  @ManyToOne(() => LevelEntity, (level) => level.lessons)
+  @ManyToOne(() => LevelEntity, (level) => level.lessons, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'level_id' })
   public readonly level: LevelEntity;
 
-  @OneToMany(() => VisitedLessonEntity, (visitedLesson) => visitedLesson.lesson)
+  @OneToMany(
+    () => VisitedLessonEntity,
+    (visitedLesson) => visitedLesson.lesson,
+    {
+      cascade: true,
+    },
+  )
   public readonly visitedLessons: VisitedLessonEntity[];
 }

@@ -11,6 +11,8 @@ export class LevelEntity extends AbstractEntity {
   @ManyToOne(() => CourseEntity, (course) => course.levels)
   public readonly course: CourseEntity;
 
-  @OneToMany(() => LessonEntity, (lesson) => lesson.level)
+  @OneToMany(() => LessonEntity, (lesson) => lesson.level, {
+    cascade: true,
+  })
   public readonly lessons: LessonEntity[];
 }

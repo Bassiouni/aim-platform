@@ -16,6 +16,7 @@ export class UserEntity extends AbstractEntity {
   public readonly email: string;
 
   @Column()
+  @Exclude()
   public readonly passwordHash: string;
 
   @Column()
@@ -30,24 +31,37 @@ export class UserEntity extends AbstractEntity {
   @OneToMany(
     () => UserPermissionEntity,
     (userPermissionEntity: UserPermissionEntity) => userPermissionEntity.user,
+    {
+      cascade: true,
+    },
   )
   public readonly userPermissions: UserPermissionEntity[];
 
   @OneToMany(
     () => TokenEntity,
     (adminTokenEntity: TokenEntity) => adminTokenEntity.user,
+    {
+      cascade: true,
+    },
   )
   public readonly adminTokens: TokenEntity[];
 
-  @OneToMany(() => GalleryEntity, (galleryEntity) => galleryEntity.user)
+  @OneToMany(() => GalleryEntity, (galleryEntity) => galleryEntity.user, {
+    cascade: true,
+  })
   public readonly gallery: GalleryEntity[];
 
   @OneToMany(
     () => EnrolledCourseEntity,
     (enrolledCourseEntity) => enrolledCourseEntity.user,
+    {
+      cascade: true,
+    },
   )
   public readonly enrolledCourses: EnrolledCourseEntity[];
 
-  @OneToMany(() => VisitedLessonEntity, (visitedLesson) => visitedLesson.user)
+  @OneToMany(() => VisitedLessonEntity, (visitedLesson) => visitedLesson.user, {
+    cascade: true,
+  })
   public readonly visitedLessons: VisitedLessonEntity[];
 }

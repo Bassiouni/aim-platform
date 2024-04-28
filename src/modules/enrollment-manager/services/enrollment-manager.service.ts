@@ -6,6 +6,7 @@ import { EnrolledCourseEntity } from '../entities/enrolled-course.entity';
 import { Repository } from 'typeorm';
 import { UserService } from '../../user/services/user.service';
 import { CourseService } from '../../course/services/course.service';
+import { LessonService } from '../../lesson/services/lesson.service';
 
 @Injectable()
 export class EnrollmentManagerService {
@@ -14,6 +15,7 @@ export class EnrollmentManagerService {
     private readonly enrolledCourseRepository: Repository<EnrolledCourseEntity>,
     private readonly userService: UserService,
     private readonly courseService: CourseService,
+    private readonly lessonService: LessonService,
   ) {}
 
   public async enrollUserToCourse({
@@ -39,6 +41,59 @@ export class EnrollmentManagerService {
     });
   }
 
+  public async findUserEnrolledCourses(userId: number) {
+    return await this.enrolledCourseRepository.find({
+      relations: {
+        user: true,
+        course: true,
+      },
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      select: {
+        id: true,
+        course: {
+          id: true,
+          name: true,
+        },
+      },
+    });
+  }
+
+  public async findUserEnrolledCourseLevels(userId: number, courseId: number) {
+    return await this.enrolledCourseRepository.findOne({
+      relations: {
+        user: true,
+        course: {
+          levels: {
+            course: true,
+          },
+        },
+      },
+      where: {
+        user: {
+          id: userId,
+        },
+        course: {
+          id: courseId,
+        },
+      },
+      select: {
+        id: true,
+        course: {
+          id: true,
+          name: true,
+          levels: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
   public async findOne(id: number) {
     return await this.enrolledCourseRepository.findOne({
       where: { id },
@@ -59,5 +114,77 @@ export class EnrollmentManagerService {
 
   public async remove(id: number) {
     return await this.enrolledCourseRepository.delete(id);
+  }
+
+  public async findUserEnrolledCourseLevelLessons(
+    userId: number,
+    courseId: number,
+    levelId: number,
+  ) {
+    return await this.enrolledCourseRepository.findOne({
+      relations: {
+        user: true,
+        course: {
+          levels: {
+            course: true,
+            lessons: {
+              level: {
+                course: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        user: {
+          id: userId,
+        },
+        course: {
+          id: courseId,
+          levels: {
+            id: levelId,
+          },
+        },
+      },
+    });
+  }
+
+  async findUserEnrolledCourseLevelLessonContent(
+    userId: number,
+    courseId: number,
+    levelId: number,
+    lessonId: number,
+  ) {
+    const ret = await this.enrolledCourseRepository.findOne({
+      relations: {
+        user: true,
+        course: {
+          levels: {
+            course: true,
+            lessons: {
+              level: {
+                course: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        user: {
+          id: userId,
+        },
+        course: {
+          id: courseId,
+          levels: {
+            id: levelId,
+            lessons: {
+              id: lessonId,
+            },
+          },
+        },
+      },
+    });
+    await this.lessonService.findOne(userId, lessonId);
+    return ret;
   }
 }

@@ -18,6 +18,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - '.env'
+    networks:
+      - backend
   db:
     image: postgres
     restart: always
@@ -38,12 +42,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 volumes:
   db-data:
 secrets:
   db-password:
     file: db/password.txt
-
+networks:
+  backend:
+    driver: bridge
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the

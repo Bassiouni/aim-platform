@@ -10,9 +10,9 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  Redirect,
 } from '@nestjs/common';
 import { GalleryService } from '../services/gallery.service';
-import { CreateGalleryDto } from '../dto/create-gallery.dto';
 import { UpdateGalleryDto } from '../dto/update-gallery.dto';
 import { JwtAccessTokenGuard } from '../../auth/guards/jwt-access-token-guard.service';
 import { PermissionGuard } from '../../permission-manager/guards/permission.guard';
@@ -20,6 +20,8 @@ import { RequirePermissions } from '../../../utilities/decorators/require-permis
 import { ActionTypeEnum } from '../../permission-manager/enums/action-type.enum';
 import { GalleryEntity } from '../entities/gallery.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from '../../../utilities/decorators/user.decorator';
+import { diskStorage } from 'multer';
 
 @Controller('gallery')
 export class GalleryController {
@@ -31,16 +33,34 @@ export class GalleryController {
     action: ActionTypeEnum.CREATE,
     entity: GalleryEntity,
   })
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      dest: './upload',
+      storage: diskStorage({
+        destination: './upload',
+        filename: (req, file, callback) => {
+          const name = file.originalname.split('.')[0];
+          const ext = file.originalname.split('.')[1];
+          const newFilename = `${name.split(' ').join('_')}_${new Date()}.${ext}`;
+
+          callback(null, newFilename);
+        },
+      }),
+    }),
+  )
+  @Redirect('/profile')
   public async create(
-    @Body() createGalleryDto: CreateGalleryDto,
     @UploadedFile() file: Express.Multer.File,
+    @User('id') userId: number,
   ) {
     if (!file) {
       throw new BadRequestException('File is required');
     }
 
-    return await this.galleryService.create({ photoPath: `/${file.filename}` });
+    await this.galleryService.create(
+      { photoPath: `/${file.filename}` },
+      userId,
+    );
   }
 
   @Get()

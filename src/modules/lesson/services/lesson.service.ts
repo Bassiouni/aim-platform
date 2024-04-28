@@ -6,6 +6,7 @@ import { LessonEntity } from '../entities/lesson.entity';
 import { Repository } from 'typeorm';
 import { UserService } from '../../user/services/user.service';
 import { VisitedLessonEntity } from '../entities/visited-lesson.entity';
+import { LevelService } from '../../level/services/level.service';
 
 @Injectable()
 export class LessonService {
@@ -15,6 +16,7 @@ export class LessonService {
     private readonly userService: UserService,
     @InjectRepository(VisitedLessonEntity)
     private readonly visitedLessonRepository: Repository<VisitedLessonEntity>,
+    private readonly levelService: LevelService,
   ) {}
 
   public async create(createLessonDto: CreateLessonDto) {
@@ -33,7 +35,17 @@ export class LessonService {
   }
 
   public async update(id: number, updateLessonDto: UpdateLessonDto) {
-    return await this.lessonRepository.update(id, updateLessonDto);
+    if (
+      updateLessonDto.levelId !== undefined &&
+      updateLessonDto.levelId !== null
+    ) {
+      await this.lessonRepository.save({
+        id,
+        level: await this.levelService.findOne(updateLessonDto.levelId),
+      });
+    }
+    delete updateLessonDto.levelId;
+    return await this.lessonRepository.save({ id, updateLessonDto });
   }
 
   public async remove(id: number) {

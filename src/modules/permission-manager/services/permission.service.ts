@@ -4,6 +4,7 @@ import { PermissionEntity } from '../entities/permission.entity';
 import { Repository } from 'typeorm';
 import { ActionTypeEnum } from '../enums/action-type.enum';
 import { UserType } from 'src/modules/user/types/user.type';
+import { PermissionType } from '../types/permission.type';
 
 @Injectable()
 export class PermissionService {
@@ -11,6 +12,17 @@ export class PermissionService {
     @InjectRepository(PermissionEntity)
     private readonly permissionRepository: Repository<PermissionEntity>,
   ) {}
+
+  public async findAll() {
+    return await this.permissionRepository.find();
+  }
+
+  public async findOne(id: number) {
+    return await this.permissionRepository.findOneBy({ id });
+  }
+  public async create(permission: PermissionType<any>) {
+    return await this.permissionRepository.save(permission);
+  }
 
   // TODO: Make Relation with user
   public async permissionWithGivenUserExists(

@@ -22,7 +22,10 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
     private readonly userService: UserService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        JwtRefreshTokenStrategy.extractJwtFromCookie,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: true,
       secretOrKey: configService.getOrThrow('refresh_token_secret'),
       passReqToCallback: true,
@@ -30,7 +33,9 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   }
 
   public async validate(req: Request, payload: UserType): Promise<UserType> {
-    const refresh_token = req.get('Authorization').replace('Bearer', '').trim();
+    const refresh_token =
+      req?.get('Authorization')?.replace('Bearer', '')?.trim() ||
+      req?.cookies?.['refresh-token'];
     const source = req.headers['user-agent'];
 
     const adminEntity = await this.userService.findOne(payload.id);
@@ -51,5 +56,15 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
     }
 
     return payload;
+  }
+
+  private static extractJwtFromCookie(req: Request): string | null {
+    if (
+      req.cookies &&
+      'refresh-token' in req.cookies &&
+      req.cookies['refresh-token'].length > 0
+    )
+      return req.cookies['refresh-token'];
+    return null;
   }
 }

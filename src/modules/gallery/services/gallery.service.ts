@@ -4,16 +4,22 @@ import { UpdateGalleryDto } from '../dto/update-gallery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GalleryEntity } from '../entities/gallery.entity';
 import { Repository } from 'typeorm';
+import { UserService } from '../../user/services/user.service';
 
 @Injectable()
 export class GalleryService {
   public constructor(
     @InjectRepository(GalleryEntity)
     private readonly galleryRepository: Repository<GalleryEntity>,
+    private readonly userService: UserService,
   ) {}
 
-  public async create(createGalleryDto: CreateGalleryDto) {
-    return await this.galleryRepository.save(createGalleryDto);
+  public async create(createGalleryDto: CreateGalleryDto, userId: number) {
+    const user = await this.userService.findOne(userId);
+    return await this.galleryRepository.save({
+      user,
+      photoPath: createGalleryDto.photoPath,
+    });
   }
 
   public async findAll() {

@@ -6,6 +6,7 @@ import { EnrolledCourseEntity } from './entities/enrolled-course.entity';
 import { UserModule } from '../user/user.module';
 import { CourseModule } from '../course/course.module';
 import { PermissionManagerModule } from '../permission-manager/permission-manager.module';
+import { LessonModule } from '../lesson/lesson.module';
 
 @Module({
   imports: [
@@ -13,8 +14,10 @@ import { PermissionManagerModule } from '../permission-manager/permission-manage
     UserModule,
     CourseModule,
     PermissionManagerModule,
+    LessonModule,
   ],
   controllers: [EnrollmentManagerController],
   providers: [EnrollmentManagerService],
+  exports: [EnrollmentManagerService],
 })
 export class EnrollmentManagerModule {}
