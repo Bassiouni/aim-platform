@@ -30,7 +30,7 @@ export class PermissionService {
     entity: string,
     user: UserType,
   ) {
-    const permissionEntity = await this.permissionRepository.exists({
+    return await this.permissionRepository.exists({
       where: {
         action,
         entity,
@@ -46,11 +46,5 @@ export class PermissionService {
         },
       },
     });
-
-    if (!permissionEntity) {
-      throw new NotFoundException("permission wasn't fount");
-    }
-
-    return permissionEntity;
   }
 }
