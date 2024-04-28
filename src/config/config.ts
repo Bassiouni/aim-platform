@@ -22,6 +22,9 @@ const database: TypeOrmModuleOptions = {
   database: DB_NAME,
   synchronize: true,
   autoLoadEntities: true,
+  extra: {
+    ssl: true,
+  },
 };
 
 export function config() {
